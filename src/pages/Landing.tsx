@@ -68,7 +68,11 @@ function Landing() {
       <section className="hero">
         <div className="hero-text">
           <span className="hero-tag">{config.hero_tag}</span>
-          <h1 dangerouslySetInnerHTML={{ __html: config.hero_title.replace('IDEAS', '<span class="accent">IDEAS</span>').replace('CREATIVAS', '<span class="accent2">CREATIVAS</span>') }} />
+          <h1 dangerouslySetInnerHTML={{ 
+            __html: (config.hero_title || 'DALE COLOR A TUS IDEAS CREATIVAS')
+              .replace('IDEAS', '<span class="accent">IDEAS</span>')
+              .replace('CREATIVAS', '<span class="accent2">CREATIVAS</span>') 
+          }} />
           <p className="hero-sub">{config.hero_subtitle}</p>
           <div className="hero-btns">
             <a href="#contacto" className="btn-primary">Pedir Cotización</a>
