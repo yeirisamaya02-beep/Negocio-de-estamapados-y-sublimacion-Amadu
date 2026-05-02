@@ -1,12 +1,26 @@
 import React from 'react';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  description?: string;
+  address?: string;
+  whatsappUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+}
+
+const Footer: React.FC<FooterProps> = ({
+  description = "Tu solución creativa para estampados, sublimación, copias e impresiones de calidad.",
+  address = "📍 Tu Ciudad, Colombia",
+  whatsappUrl = "https://wa.me/573000000000",
+  instagramUrl = "#",
+  facebookUrl = "#"
+}) => {
   return (
     <>
       <footer>
         <div className="footer-brand">
           <div className="logo">Ama<span>du</span></div>
-          <p>Tu solución creativa para estampados, sublimación, copias e impresiones de calidad.</p>
+          <p>{description}</p>
         </div>
         <div className="footer-col">
           <h4>Servicios</h4>
@@ -29,10 +43,10 @@ const Footer: React.FC = () => {
         <div className="footer-col">
           <h4>Contacto</h4>
           <ul>
-            <li><a href="#">📍 Tu Ciudad, Colombia</a></li>
-            <li><a href="https://wa.me/573000000000">📲 WhatsApp</a></li>
-            <li><a href="#">📸 Instagram</a></li>
-            <li><a href="#">📘 Facebook</a></li>
+            <li><a href={address.startsWith('http') ? address : '#'}>{address}</a></li>
+            <li><a href={whatsappUrl} target="_blank" rel="noopener noreferrer">📲 WhatsApp</a></li>
+            <li><a href={instagramUrl} target="_blank" rel="noopener noreferrer">📸 Instagram</a></li>
+            <li><a href={facebookUrl} target="_blank" rel="noopener noreferrer">📘 Facebook</a></li>
           </ul>
         </div>
       </footer>

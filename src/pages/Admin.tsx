@@ -3,7 +3,7 @@ import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 
 export default function Admin() {
-  const [tab, setTab] = useState<'servicios' | 'inscripciones'>('servicios');
+  const [tab, setTab] = useState<'servicios' | 'inscripciones' | 'configuracion'>('servicios');
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -32,9 +32,17 @@ export default function Admin() {
           >
             Contactos (Inscripciones)
           </button>
+          <button 
+            onClick={() => setTab('configuracion')}
+            style={{ padding: '0.8rem 1.5rem', background: tab === 'configuracion' ? 'var(--magenta)' : '#ddd', color: tab === 'configuracion' ? 'white' : 'black', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+            Configuración General
+          </button>
         </div>
 
-        {tab === 'servicios' ? <ServiciosTab /> : <InscripcionesTab />}
+        {tab === 'servicios' && <ServiciosTab />}
+        {tab === 'inscripciones' && <InscripcionesTab />}
+        {tab === 'configuracion' && <ConfiguracionTab />}
       </div>
     </div>
   );
@@ -203,6 +211,95 @@ function InscripcionesTab() {
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+// Configuracion Tab Component
+function ConfiguracionTab() {
+  const [config, setConfig] = useState<any>({
+    hero_tag: '', hero_title: '', hero_subtitle: '', whatsapp_number: '', instagram_url: '', facebook_url: '', address: '', footer_desc: ''
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetchConfig();
+  }, []);
+
+  const fetchConfig = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('configuracion').select('*').single();
+    if (data) setConfig(data);
+    setLoading(false);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    // Verificar si existe el registro id=1
+    const { data } = await supabase.from('configuracion').select('id').eq('id', 1).single();
+    if (data) {
+      await supabase.from('configuracion').update(config).eq('id', 1);
+    } else {
+      await supabase.from('configuracion').insert([{ id: 1, ...config }]);
+    }
+    alert('Configuración guardada correctamente.');
+    setSaving(false);
+  };
+
+  if (loading) return <p>Cargando configuración...</p>;
+
+  return (
+    <div style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', maxWidth: '800px' }}>
+      <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--ink)' }}>Configuración de Contenido</h3>
+      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        
+        <div style={{ padding: '1.5rem', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee' }}>
+          <h4 style={{ marginBottom: '1rem', color: 'var(--magenta)' }}>Sección Principal (Inicio)</h4>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Etiqueta Pequeña</label>
+            <input required type="text" value={config.hero_tag || ''} onChange={e => setConfig({...config, hero_tag: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Título Grande</label>
+            <textarea required value={config.hero_title || ''} onChange={e => setConfig({...config, hero_title: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc', resize: 'vertical' }} />
+            <small style={{ color: '#666' }}>Usa "IDEAS" y "CREATIVAS" en mayúsculas si quieres que se vean de color rosado y amarillo.</small>
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Subtítulo</label>
+            <textarea required value={config.hero_subtitle || ''} onChange={e => setConfig({...config, hero_subtitle: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc', resize: 'vertical' }} />
+          </div>
+        </div>
+
+        <div style={{ padding: '1.5rem', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee' }}>
+          <h4 style={{ marginBottom: '1rem', color: 'var(--magenta)' }}>Redes y Contacto</h4>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Número de WhatsApp</label>
+            <input required type="text" value={config.whatsapp_number || ''} onChange={e => setConfig({...config, whatsapp_number: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc' }} placeholder="Ej: 573001234567" />
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Enlace de Instagram</label>
+            <input required type="url" value={config.instagram_url || ''} onChange={e => setConfig({...config, instagram_url: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Enlace de Facebook</label>
+            <input required type="url" value={config.facebook_url || ''} onChange={e => setConfig({...config, facebook_url: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Dirección (Footer)</label>
+            <input required type="text" value={config.address || ''} onChange={e => setConfig({...config, address: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Descripción (Footer)</label>
+            <textarea required value={config.footer_desc || ''} onChange={e => setConfig({...config, footer_desc: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc', resize: 'vertical' }} />
+          </div>
+        </div>
+
+        <button type="submit" disabled={saving} style={{ background: 'var(--magenta)', color: 'white', padding: '1rem', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', alignSelf: 'flex-start' }}>
+          {saving ? 'Guardando...' : 'Guardar Configuración'}
+        </button>
+      </form>
     </div>
   );
 }

@@ -18,6 +18,16 @@ const defaultServices = [
 
 function Landing() {
   const [servicios, setServicios] = useState<any[]>(defaultServices);
+  const [config, setConfig] = useState<any>({
+    hero_tag: '🎨 Estampados · Sublimación · Papelería',
+    hero_title: 'DALE COLOR A TUS IDEAS CREATIVAS',
+    hero_subtitle: 'Estampados personalizados, sublimación de alta calidad, copias, impresiones y papelería creativa para eventos, empresas y personas.',
+    whatsapp_number: '573000000000',
+    instagram_url: '#',
+    facebook_url: '#',
+    address: '📍 Tu Ciudad, Colombia',
+    footer_desc: 'Tu solución creativa para estampados, sublimación, copias e impresiones de calidad.'
+  });
 
   useEffect(() => {
     async function cargarProductos() {
@@ -35,6 +45,18 @@ function Landing() {
       }
     }
 
+    async function cargarConfiguracion() {
+      try {
+        const { data, error } = await supabase.from('configuracion').select('*').single();
+        if (data && !error) {
+          setConfig(data);
+        }
+      } catch (err) {
+        console.warn('No se pudo cargar la configuración.', err);
+      }
+    }
+
+    cargarConfiguracion();
     cargarProductos();
   }, []);
 
@@ -45,15 +67,9 @@ function Landing() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-text">
-          <span className="hero-tag">🎨 Estampados · Sublimación · Papelería</span>
-          <h1>
-            DALE COLOR<br />
-            A TUS <span className="accent">IDEAS</span><br />
-            <span className="accent2">CREATIVAS</span>
-          </h1>
-          <p className="hero-sub">
-            Estampados personalizados, sublimación de alta calidad, copias, impresiones y papelería creativa para eventos, empresas y personas.
-          </p>
+          <span className="hero-tag">{config.hero_tag}</span>
+          <h1 dangerouslySetInnerHTML={{ __html: config.hero_title.replace('IDEAS', '<span class="accent">IDEAS</span>').replace('CREATIVAS', '<span class="accent2">CREATIVAS</span>') }} />
+          <p className="hero-sub">{config.hero_subtitle}</p>
           <div className="hero-btns">
             <a href="#contacto" className="btn-primary">Pedir Cotización</a>
             <a href="#servicios" className="btn-secondary">Ver Servicios</a>
@@ -101,10 +117,16 @@ function Landing() {
       <section className="cta-section" id="contacto">
         <h2>¿LISTO PARA<br />CREAR ALGO INCREÍBLE?</h2>
         <p>Contáctanos hoy y recibe tu cotización sin compromiso. Hacemos realidad tus ideas con la mejor calidad.</p>
-        <a href="https://wa.me/573000000000" className="btn-white">📲 Cotizar por WhatsApp</a>
+        <a href={`https://wa.me/${config.whatsapp_number.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="btn-white">📲 Cotizar por WhatsApp</a>
       </section>
 
-      <Footer />
+      <Footer 
+        address={config.address}
+        description={config.footer_desc}
+        whatsappUrl={`https://wa.me/${config.whatsapp_number.replace(/\D/g, '')}`}
+        instagramUrl={config.instagram_url}
+        facebookUrl={config.facebook_url}
+      />
     </div>
   );
 }
