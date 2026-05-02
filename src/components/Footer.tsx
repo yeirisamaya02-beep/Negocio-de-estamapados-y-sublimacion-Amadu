@@ -38,6 +38,8 @@ const Footer: React.FC = () => {
       </footer>
       <div className="footer-bottom">
         © {new Date().getFullYear()} <span>Amadu Studio</span> · Todos los derechos reservados
+        <span style={{ margin: '0 10px', color: '#444' }}>|</span>
+        <a href="/admin" style={{ color: '#666', textDecoration: 'none', fontSize: '0.8rem' }}>Admin</a>
       </div>
     </>
   );
