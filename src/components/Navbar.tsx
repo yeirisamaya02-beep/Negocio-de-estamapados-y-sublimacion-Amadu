@@ -16,6 +16,7 @@ const Navbar: React.FC = () => {
         <li><a href="#proceso" onClick={() => setIsOpen(false)}>Proceso</a></li>
         <li><a href="#galeria" onClick={() => setIsOpen(false)}>Galería</a></li>
         <li><a href="#contacto" className="nav-cta" onClick={() => setIsOpen(false)}>Cotizar</a></li>
+        <li><a href="/admin" onClick={() => setIsOpen(false)}>Admin ⚙️</a></li>
       </ul>
     </nav>
   );
