@@ -1,111 +1,42 @@
-import { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
-import StatsBar from './components/StatsBar';
-import ServiceCard from './components/ServiceCard';
-import ProcessSteps from './components/ProcessSteps';
-import GalleryStrip from './components/GalleryStrip';
-import Footer from './components/Footer';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import Landing from './pages/Landing';
+import Admin from './pages/Admin';
+import Login from './pages/Login';
 import { supabase } from './supabaseClient';
 
-const defaultServices = [
-  { icono: '👕', nombre: 'Estampados', descripción: 'Camisetas, chaquetas, uniformes y más con serigrafía y estampado digital.', clase_de_color: 'c1' },
-  { icono: '🌡️', nombre: 'Sublimación', descripción: 'Mugs, tazas, gorras, cojines y telas con impresión de alta calidad.', clase_de_color: 'c2' },
-  { icono: '🖨️', nombre: 'Copias e Impresiones', descripción: 'Fotocopias B&N y a color, impresión en diferentes tamaños.', clase_de_color: 'c3' },
-  { icono: '🎀', nombre: 'Papelería Creativa', descripción: 'Invitaciones, tarjetas, flyers, stickers y packaging para eventos.', clase_de_color: 'c4' },
-  { icono: '🏷️', nombre: 'Rótulos y Pendones', descripción: 'Lonas publicitarias y señalización con colores vibrantes.', clase_de_color: 'c5' },
-  { icono: '🎁', nombre: 'Artículos Promocionales', descripción: 'Bolsos, libretas, lapiceros y artículos con tu marca.', clase_de_color: 'c6' },
-];
-
 function App() {
-  const [servicios, setServicios] = useState<any[]>(defaultServices);
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function cargarProductos() {
-      try {
-        const { data, error } = await supabase
-          .from('productos')
-          .select('*');
-        
-        if (error) throw error;
-        if (data && data.length > 0) {
-          setServicios(data);
-        }
-      } catch (err) {
-        console.warn('Usando servicios por defecto mientras se sincroniza Supabase.', err);
-      }
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
 
-    cargarProductos();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
+  if (loading) {
+    return <div style={{ padding: '2rem', textAlign: 'center', color: 'black' }}>Cargando aplicación...</div>;
+  }
+
   return (
-    <div className="Amadu-app">
-      <Navbar />
-
-      {/* HERO */}
-      <section className="hero">
-        <div className="hero-text">
-          <span className="hero-tag">🎨 Estampados · Sublimación · Papelería</span>
-          <h1>
-            DALE COLOR<br />
-            A TUS <span className="accent">IDEAS</span><br />
-            <span className="accent2">CREATIVAS</span>
-          </h1>
-          <p className="hero-sub">
-            Estampados personalizados, sublimación de alta calidad, copias, impresiones y papelería creativa para eventos, empresas y personas.
-          </p>
-          <div className="hero-btns">
-            <a href="#contacto" className="btn-primary">Pedir Cotización</a>
-            <a href="#servicios" className="btn-secondary">Ver Servicios</a>
-          </div>
-        </div>
-        <div className="hero-visual">
-          <div className="tshirt-scene">
-            <div className="tshirt-bg">
-              <span className="tshirt-icon">👕</span>
-              <span className="tshirt-label">DISEÑO PERSONALIZADO</span>
-            </div>
-            <span className="badge badge-1">¡TU LOGO AQUÍ!</span>
-            <span className="badge badge-2">🖨️ Full Color</span>
-          </div>
-        </div>
-      </section>
-
-      <StatsBar />
-
-      {/* SERVICES */}
-      <section className="services" id="servicios">
-        <div className="section-header">
-          <span className="section-tag">Lo que ofrecemos</span>
-          <h2 className="section-title">NUESTROS <span>SERVICIOS</span></h2>
-          <p className="section-sub">Todo lo que necesitas para expresar tu marca o evento</p>
-        </div>
-        <div className="services-grid">
-          {servicios.map((s, idx) => (
-            <ServiceCard 
-              key={idx} 
-              icon={s.icono} 
-              name={s.nombre} 
-              description={s.descripción} 
-              colorClass={s.clase_de_color} 
-            />
-          ))}
-        </div>
-      </section>
-
-      <ProcessSteps />
-
-      <GalleryStrip />
-
-      {/* CTA */}
-      <section className="cta-section" id="contacto">
-        <h2>¿LISTO PARA<br />CREAR ALGO INCREÍBLE?</h2>
-        <p>Contáctanos hoy y recibe tu cotización sin compromiso. Hacemos realidad tus ideas con la mejor calidad.</p>
-        <a href="https://wa.me/573000000000" className="btn-white">📲 Cotizar por WhatsApp</a>
-      </section>
-
-      <Footer />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={!session ? <Login /> : <Navigate to="/admin" />} />
+        <Route path="/admin" element={session ? <Admin /> : <Navigate to="/login" />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
 }
 
