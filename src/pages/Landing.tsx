@@ -122,13 +122,13 @@ function Landing() {
       <section className="cta-section" id="contacto">
         <h2>¿LISTO PARA<br />CREAR ALGO INCREÍBLE?</h2>
         <p>Contáctanos hoy y recibe tu cotización sin compromiso. Hacemos realidad tus ideas con la mejor calidad.</p>
-        <a href={`https://wa.me/${config.whatsapp_number.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="btn-white">📲 Cotizar por WhatsApp</a>
+        <a href={`https://wa.me/${(config.whatsapp_number || '').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="btn-white">📲 Cotizar por WhatsApp</a>
       </section>
 
       <Footer 
         address={config.address}
         description={config.footer_desc}
-        whatsappUrl={`https://wa.me/${config.whatsapp_number.replace(/\D/g, '')}`}
+        whatsappUrl={`https://wa.me/${(config.whatsapp_number || '').replace(/\D/g, '')}`}
         instagramUrl={config.instagram_url}
         facebookUrl={config.facebook_url}
       />
