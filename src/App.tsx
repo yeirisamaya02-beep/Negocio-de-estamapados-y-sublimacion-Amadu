@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import StatsBar from './components/StatsBar';
 import ServiceCard from './components/ServiceCard';
@@ -6,16 +6,6 @@ import ProcessSteps from './components/ProcessSteps';
 import GalleryStrip from './components/GalleryStrip';
 import Footer from './components/Footer';
 import { supabase } from './supabaseClient';
-
-// Definimos la interfaz para que coincida con tu base de datos
-interface Producto {
-  identificación: string;
-  nombre: string;
-  descripción: string;
-  precio: string;
-  icono: string;
-  clase_de_color: string;
-}
 
 const defaultServices = [
   { icono: '👕', nombre: 'Estampados', descripción: 'Camisetas, chaquetas, uniformes y más con serigrafía y estampado digital.', clase_de_color: 'c1' },
