@@ -13,7 +13,7 @@ const Navbar: React.FC = () => {
         <span className={isOpen ? 'line open' : 'line'}></span>
       </div>
       <ul className={`nav-links ${isOpen ? 'active' : ''}`}>
-        <li><a href="#servicios" onClick={() => setIsOpen(false)}>Servicios</a></li>
+        <li><a href="#productos" onClick={() => setIsOpen(false)}>Productos</a></li>
         <li><a href="#proceso" onClick={() => setIsOpen(false)}>Proceso</a></li>
         <li><a href="#galeria" onClick={() => setIsOpen(false)}>Galería</a></li>
         <li><a href="#contacto" className="nav-cta" onClick={() => setIsOpen(false)}>Cotizar</a></li>

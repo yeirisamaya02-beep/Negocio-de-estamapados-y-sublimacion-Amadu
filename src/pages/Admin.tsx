@@ -24,7 +24,7 @@ export default function Admin() {
             onClick={() => setTab('servicios')}
             style={{ padding: '0.8rem 1.5rem', background: tab === 'servicios' ? 'var(--magenta)' : '#ddd', color: tab === 'servicios' ? 'white' : 'black', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}
           >
-            Gestión de Servicios
+            Gestión de Productos
           </button>
           <button 
             onClick={() => setTab('inscripciones')}
@@ -40,7 +40,7 @@ export default function Admin() {
           </button>
         </div>
 
-        {tab === 'servicios' && <ServiciosTab />}
+        {tab === 'servicios' && <ProductosTab />}
         {tab === 'inscripciones' && <InscripcionesTab />}
         {tab === 'configuracion' && <ConfiguracionTab />}
       </div>
@@ -48,12 +48,13 @@ export default function Admin() {
   );
 }
 
-function ServiciosTab() {
+function ProductosTab() {
   const [servicios, setServicios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState({ icono: '', nombre: '', descripción: '', clase_de_color: 'c1' });
+  const [formData, setFormData] = useState({ icono: '', nombre: '', descripción: '', clase_de_color: 'c1', imagen_url: '' });
 
   useEffect(() => {
     fetchServicios();
@@ -73,33 +74,55 @@ function ServiciosTab() {
     } else {
       await supabase.from('productos').insert([formData]);
     }
-    setFormData({ icono: '', nombre: '', descripción: '', clase_de_color: 'c1' });
+    setFormData({ icono: '', nombre: '', descripción: '', clase_de_color: 'c1', imagen_url: '' });
     setEditingId(null);
     fetchServicios();
   };
 
   const handleEdit = (s: any) => {
     setEditingId(s.id);
-    setFormData({ icono: s.icono, nombre: s.nombre, descripción: s.descripción, clase_de_color: s.clase_de_color });
+    setFormData({ icono: s.icono, nombre: s.nombre, descripción: s.descripción, clase_de_color: s.clase_de_color, imagen_url: s.imagen_url || '' });
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('¿Estás seguro de eliminar este servicio?')) {
+    if (confirm('¿Estás seguro de eliminar este producto?')) {
       await supabase.from('productos').delete().eq('id', id);
       fetchServicios();
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('productos')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      alert('Error subiendo imagen: ' + uploadError.message);
+    } else {
+      const { data } = supabase.storage.from('productos').getPublicUrl(filePath);
+      setFormData({ ...formData, imagen_url: data.publicUrl });
+    }
+    setUploading(false);
+  };
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }}>
       <div style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-        <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--ink)' }}>Lista de Servicios</h3>
+        <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--ink)' }}>Lista de Productos</h3>
         {loading ? <p>Cargando...</p> : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #eee' }}>
-                  <th style={{ padding: '1rem 0.5rem', color: '#666' }}>Icono</th>
+                  <th style={{ padding: '1rem 0.5rem', color: '#666' }}>Foto/Icono</th>
                   <th style={{ padding: '1rem 0.5rem', color: '#666' }}>Nombre</th>
                   <th style={{ padding: '1rem 0.5rem', color: '#666' }}>Descripción</th>
                   <th style={{ padding: '1rem 0.5rem', color: '#666' }}>Acciones</th>
@@ -108,7 +131,9 @@ function ServiciosTab() {
               <tbody>
                 {servicios.map(s => (
                   <tr key={s.id} style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: '1rem 0.5rem', fontSize: '1.5rem' }}>{s.icono}</td>
+                    <td style={{ padding: '1rem 0.5rem', fontSize: '1.5rem' }}>
+                      {s.imagen_url ? <img src={s.imagen_url} alt="Prod" style={{width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px'}} /> : s.icono}
+                    </td>
                     <td style={{ padding: '1rem 0.5rem', fontWeight: 'bold' }}>{s.nombre}</td>
                     <td style={{ padding: '1rem 0.5rem', fontSize: '0.9rem', color: '#555' }}>{s.descripción}</td>
                     <td style={{ padding: '1rem 0.5rem' }}>
@@ -117,7 +142,7 @@ function ServiciosTab() {
                     </td>
                   </tr>
                 ))}
-                {servicios.length === 0 && <tr><td colSpan={4} style={{ padding: '1rem', textAlign: 'center' }}>No hay servicios registrados.</td></tr>}
+                {servicios.length === 0 && <tr><td colSpan={4} style={{ padding: '1rem', textAlign: 'center' }}>No hay productos registrados.</td></tr>}
               </tbody>
             </table>
           </div>
@@ -126,15 +151,26 @@ function ServiciosTab() {
 
       <div style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', alignSelf: 'start' }}>
         <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--ink)' }}>
-          {editingId ? 'Editar Servicio' : 'Nuevo Servicio'}
+          {editingId ? 'Editar Producto' : 'Nuevo Producto'}
         </h3>
         <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Emoji/Icono</label>
-            <input required type="text" value={formData.icono} onChange={e => setFormData({...formData, icono: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc' }} placeholder="Ej: 👕" />
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Subir Foto (Opcional)</label>
+            <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} style={{ width: '100%', marginBottom: '0.5rem' }} />
+            {uploading && <small style={{color: '#666'}}>Subiendo imagen...</small>}
+            {formData.imagen_url && !uploading && (
+              <div style={{position: 'relative', display: 'inline-block'}}>
+                <img src={formData.imagen_url} alt="Vista previa" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                <button type="button" onClick={() => setFormData({...formData, imagen_url: ''})} style={{position: 'absolute', top: 5, right: 5, background: 'red', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer'}}>x</button>
+              </div>
+            )}
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Nombre</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Emoji/Icono (Si no hay foto)</label>
+            <input type="text" value={formData.icono} onChange={e => setFormData({...formData, icono: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc' }} placeholder="Ej: 👕" />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Nombre del Producto</label>
             <input required type="text" value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value})} style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc' }} placeholder="Ej: Estampados" />
           </div>
           <div>
@@ -152,11 +188,11 @@ function ServiciosTab() {
               <option value="c6">Verde</option>
             </select>
           </div>
-          <button type="submit" style={{ background: 'var(--magenta)', color: 'white', padding: '0.8rem', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem' }}>
-            {editingId ? 'Guardar Cambios' : 'Agregar Servicio'}
+          <button type="submit" disabled={uploading} style={{ background: 'var(--magenta)', color: 'white', padding: '0.8rem', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem' }}>
+            {editingId ? 'Guardar Cambios' : 'Agregar Producto'}
           </button>
           {editingId && (
-            <button type="button" onClick={() => { setEditingId(null); setFormData({ icono: '', nombre: '', descripción: '', clase_de_color: 'c1' }); }} style={{ background: '#eee', color: 'black', padding: '0.8rem', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button type="button" onClick={() => { setEditingId(null); setFormData({ icono: '', nombre: '', descripción: '', clase_de_color: 'c1', imagen_url: '' }); }} style={{ background: '#eee', color: 'black', padding: '0.8rem', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
               Cancelar Edición
             </button>
           )}

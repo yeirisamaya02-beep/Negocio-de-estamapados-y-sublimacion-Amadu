@@ -72,7 +72,7 @@ function Landing() {
           <p className="hero-sub">{config.hero_subtitle}</p>
           <div className="hero-btns">
             <a href="#contacto" className="btn-primary">Pedir Cotización</a>
-            <a href="#servicios" className="btn-secondary">Ver Servicios</a>
+            <a href="#productos" className="btn-secondary">Ver Productos</a>
           </div>
         </div>
         <div className="hero-visual">
@@ -90,10 +90,10 @@ function Landing() {
       <StatsBar />
 
       {/* SERVICES */}
-      <section className="services" id="servicios">
+      <section className="services" id="productos">
         <div className="section-header">
           <span className="section-tag">Lo que ofrecemos</span>
-          <h2 className="section-title">NUESTROS <span>SERVICIOS</span></h2>
+          <h2 className="section-title">NUESTROS <span>PRODUCTOS</span></h2>
           <p className="section-sub">Todo lo que necesitas para expresar tu marca o evento</p>
         </div>
         <div className="services-grid">
@@ -103,7 +103,8 @@ function Landing() {
               icon={s.icono} 
               name={s.nombre} 
               description={s.descripción} 
-              colorClass={s.clase_de_color} 
+              colorClass={s.clase_de_color}
+              imagen_url={s.imagen_url}
             />
           ))}
         </div>

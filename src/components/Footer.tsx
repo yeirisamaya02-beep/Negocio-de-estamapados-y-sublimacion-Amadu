@@ -23,12 +23,12 @@ const Footer: React.FC<FooterProps> = ({
           <p>{description}</p>
         </div>
         <div className="footer-col">
-          <h4>Servicios</h4>
+          <h4>Productos</h4>
           <ul>
-            <li><a href="#servicios">Estampados</a></li>
-            <li><a href="#servicios">Sublimación</a></li>
-            <li><a href="#servicios">Copias</a></li>
-            <li><a href="#servicios">Papelería</a></li>
+            <li><a href="#productos">Estampados</a></li>
+            <li><a href="#productos">Sublimación</a></li>
+            <li><a href="#productos">Copias</a></li>
+            <li><a href="#productos">Papelería</a></li>
           </ul>
         </div>
         <div className="footer-col">
