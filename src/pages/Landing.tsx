@@ -47,9 +47,9 @@ function Landing() {
 
     async function cargarConfiguracion() {
       try {
-        const { data, error } = await supabase.from('configuracion').select('*').single();
-        if (data && !error) {
-          setConfig(data);
+        const { data, error } = await supabase.from('configuracion').select('*').limit(1);
+        if (data && data.length > 0 && !error) {
+          setConfig(data[0]);
         }
       } catch (err) {
         console.warn('No se pudo cargar la configuración.', err);

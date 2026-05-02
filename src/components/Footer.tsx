@@ -43,7 +43,7 @@ const Footer: React.FC<FooterProps> = ({
         <div className="footer-col">
           <h4>Contacto</h4>
           <ul>
-            <li><a href={address.startsWith('http') ? address : '#'}>{address}</a></li>
+            <li><a href={(address || '').startsWith('http') ? address : '#'}>{address}</a></li>
             <li><a href={whatsappUrl} target="_blank" rel="noopener noreferrer">📲 WhatsApp</a></li>
             <li><a href={instagramUrl} target="_blank" rel="noopener noreferrer">📸 Instagram</a></li>
             <li><a href={facebookUrl} target="_blank" rel="noopener noreferrer">📘 Facebook</a></li>
