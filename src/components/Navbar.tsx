@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +17,7 @@ const Navbar: React.FC = () => {
         <li><a href="#proceso" onClick={() => setIsOpen(false)}>Proceso</a></li>
         <li><a href="#galeria" onClick={() => setIsOpen(false)}>Galería</a></li>
         <li><a href="#contacto" className="nav-cta" onClick={() => setIsOpen(false)}>Cotizar</a></li>
-        <li><a href="/admin" onClick={() => setIsOpen(false)}>Admin ⚙️</a></li>
+        <li><Link to="/admin" onClick={() => setIsOpen(false)}>Admin ⚙️</Link></li>
       </ul>
     </nav>
   );
